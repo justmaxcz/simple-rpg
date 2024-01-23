@@ -2,7 +2,7 @@
 
 simple rpg is retro text pase rpg
 
-# features
+<h3>features</h3>
 
 it have many features
 
@@ -11,8 +11,6 @@ it have many features
 <li>items</li>
 <li>dialogue</li>
 <li>enemyes</li>
-<li>currency</li>
-<p3>and more</p3> 
+<li>currency</li> 
 
-will this project be updated maybe because i have a lot stuff to do so sorry
-but you can do what you want with it
+<h4>will this project be updated maybe because i have a lot stuff to do so sorry but you can do what you want with it</h4>
