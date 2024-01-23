@@ -1,4 +1,4 @@
-# waring is made by AI and me
+# waring is made by AI so there is possibility that is not going to work
 
 simple rpg is retro text pase rpg
 
