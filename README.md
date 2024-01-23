@@ -13,3 +13,6 @@ it have many features
 <li>enemyes</li>
 <li>currency</li>
 <p3>and more</p3> 
+
+will this project be updated maybe because i have a lot stuff to do so sorry
+but you can do what you want with it
