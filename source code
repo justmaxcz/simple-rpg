@@ -1,0 +1,330 @@
+#!/bin/bash
+
+# A simple text-based RPG game written in bash
+
+# Define some variables
+player_name="Hero"
+player_hp=100
+player_atk=10
+player_def=5
+player_gold=0
+player_items=()
+
+enemy_name="Goblin"
+enemy_hp=50
+enemy_atk=8
+enemy_def=3
+enemy_gold=10
+
+# Define some colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Define some functions
+function show_stats {
+  echo -e "${GREEN}Your stats:${NC}"
+  echo "Name: $player_name"
+  echo "HP: $player_hp"
+  echo "ATK: $player_atk"
+  echo "DEF: $player_def"
+  echo "Gold: $player_gold"
+  echo "Items: ${player_items[@]}"
+  echo
+}
+
+function show_enemy {
+  echo -e "${RED}Enemy stats:${NC}"
+  echo "Name: $enemy_name"
+  echo "HP: $enemy_hp"
+  echo "ATK: $enemy_atk"
+  echo "DEF: $enemy_def"
+  echo "Gold: $enemy_gold"
+  echo
+}
+
+function fight {
+  echo "You enter a fight with the $enemy_name!"
+  while [ $player_hp -gt 0 ] && [ $enemy_hp -gt 0 ]; do
+    echo "What do you want to do?"
+    echo "1) Attack"
+    echo "2) Use item"
+    echo "3) Run away"
+    read -p "> " choice
+    case $choice in
+      1)
+        # Player attacks enemy
+        echo "You attack the $enemy_name!"
+        damage=$(( $player_atk - $enemy_def ))
+        if [ $damage -gt 0 ]; then
+          echo "You deal $damage damage to the $enemy_name!"
+          enemy_hp=$(( $enemy_hp - $damage ))
+        else
+          echo "Your attack is too weak to hurt the $enemy_name!"
+        fi
+        ;;
+      2)
+        # Player uses item
+        echo "You open your inventory."
+        if [ ${#player_items[@]} -eq 0 ]; then
+          echo "You have no items!"
+        else
+          echo "Select an item to use:"
+          for i in "${!player_items[@]}"; do
+            echo "$((i+1))) ${player_items[$i]}"
+          done
+          read -p "> " item
+          case $item in
+            1)
+              if [ "${player_items[0]}" == "Potion" ]; then
+                echo "You use a potion and restore 20 HP!"
+                player_hp=$(( $player_hp + 20 ))
+                player_items=("${player_items[@]:1}") # Remove the first element
+              else
+                echo "Invalid item!"
+              fi
+              ;;
+            *)
+              echo "Invalid item!"
+              ;;
+          esac
+        fi
+        ;;
+      3)
+        # Player runs away
+        echo "You try to run away from the $enemy_name!"
+        chance=$(( RANDOM % 2 ))
+        if [ $chance -eq 0 ]; then
+          echo "You successfully escape!"
+          break
+        else
+          echo "You fail to escape!"
+        fi
+        ;;
+      *)
+        # Invalid choice
+        echo "Invalid choice!"
+        ;;
+    esac
+    # Enemy attacks player
+    if [ $enemy_hp -gt 0 ]; then
+      echo "The $enemy_name attacks you!"
+      damage=$(( $enemy_atk - $player_def ))
+      if [ $damage -gt 0 ]; then
+        echo "The $enemy_name deals $damage damage to you!"
+        player_hp=$(( $player_hp - $damage ))
+      else
+        echo "The $enemy_name's attack is too weak to hurt you!"
+      fi
+    fi
+    # Show the current stats
+    show_stats
+    show_enemy
+  done
+  # Check the outcome of the fight
+  if [ $player_hp -le 0 ]; then
+    echo "You have been defeated by the $enemy_name!"
+    echo "Game over!"
+    exit
+  elif [ $enemy_hp -le 0 ]; then
+    echo "You have defeated the $enemy_name!"
+    echo "You loot $enemy_gold gold from the $enemy_name!"
+    player_gold=$(( $player_gold + $enemy_gold ))
+    chance=$(( RANDOM % 2 ))
+    if [ $chance -eq 0 ]; then
+      echo "You also find a potion!"
+      player_items+=("Potion")
+    fi
+  fi
+}
+
+# Start the game
+echo "Welcome to the simple text-based RPG game!"
+echo "You are $player_name, a brave adventurer who seeks fortune and glory."
+show_stats
+echo "You encounter a $enemy_name who blocks your path."
+show_enemy
+fight
+echo "You continue your adventure..."
+# TODO: Add more content# Add a shop
+echo "You arrive at a small village. What do you want to do?"
+echo "1) Visit the shop"
+echo "2) Visit the inn"
+echo "3) Leave the village"
+read -p "> " choice
+case $choice in
+  1)
+    # Visit the shop
+    echo "You enter the shop. You see a shopkeeper and some items for sale."
+    echo "What do you want to do?"
+    echo "1) Buy items"
+    echo "2) Sell items"
+    echo "3) Leave the shop"
+    read -p "> " choice
+    case $choice in
+      1)
+        # Buy items
+        echo "You browse the items for sale. You see a sword, a shield, and a potion."
+        echo "What do you want to buy?"
+        echo "1) Sword (10 gold)"
+        echo "2) Shield (5 gold)"
+        echo "3) Potion (5 gold)"
+        echo "4) Nothing"
+        read -p "> " choice
+        case $choice in
+          1)
+            # Buy sword
+            if [ $player_gold -ge 10 ]; then
+              echo "You buy the sword for 10 gold. Your ATK increases by 5."
+              player_gold=$(( $player_gold - 10 ))
+              player_atk=$(( $player_atk + 5 ))
+            else
+              echo "You don't have enough gold to buy the sword."
+            fi
+            ;;
+          2)
+            # Buy shield
+            if [ $player_gold -ge 5 ]; then
+              echo "You buy the shield for 5 gold. Your DEF increases by 5."
+              player_gold=$(( $player_gold - 5 ))
+              player_def=$(( $player_def + 5 ))
+            else
+              echo "You don't have enough gold to buy the shield."
+            fi
+            ;;
+          3)
+            # Buy potion
+            if [ $player_gold -ge 5 ]; then
+              echo "You buy the potion for 5 gold. You add it to your inventory."
+              player_gold=$(( $player_gold - 5 ))
+              player_items+=("Potion")
+            else
+              echo "You don't have enough gold to buy the potion."
+            fi
+            ;;
+          4)
+            # Buy nothing
+            echo "You decide not to buy anything."
+            ;;
+          *)
+            # Invalid choice
+            echo "Invalid choice!"
+            ;;
+        esac
+        ;;
+      2)
+        # Sell items
+        echo "You open your inventory. You see your items."
+        if [ ${#player_items[@]} -eq 0 ]; then
+          echo "You have no items to sell!"
+        else
+          echo "What do you want to sell?"
+          for i in "${!player_items[@]}"; do
+            echo "$((i+1))) ${player_items[$i]}"
+          done
+          echo "$(( ${#player_items[@]} + 1 )) Nothing"
+          read -p "> " choice
+          case $choice in
+            1)
+              # Sell potion
+              if [ "${player_items[0]}" == "Potion" ]; then
+                echo "You sell the potion for 3 gold. You remove it from your inventory."
+                player_gold=$(( $player_gold + 3 ))
+                player_items=("${player_items[@]:1}") # Remove the first element
+              else
+                echo "Invalid item!"
+              fi
+              ;;
+            2)
+              # Sell nothing
+              echo "You decide not to sell anything."
+              ;;
+            *)
+              # Invalid choice
+              echo "Invalid choice!"
+              ;;
+          esac
+        fi
+        ;;
+      3)
+        # Leave the shop
+        echo "You leave the shop."
+        ;;
+      *)
+        # Invalid choice
+        echo "Invalid choice!"
+        ;;
+    esac
+    ;;
+  2)
+    # Visit the inn
+    echo "You enter the inn. You see an innkeeper and some guests."
+    echo "What do you want to do?"
+    echo "1) Rest (10 gold)"
+    echo "2) Talk to guests"
+    echo "3) Leave the inn"
+    read -p "> " choice
+    case $choice in
+      1)
+        # Rest
+        if [ $player_gold -ge 10 ]; then
+          echo "You pay 10 gold and rest at the inn. Your HP is fully restored."
+          player_gold=$(( $player_gold - 10 ))
+          player_hp=100
+        else
+          echo "You don't have enough gold to rest at the inn."
+        fi
+        ;;
+      2)
+        # Talk to guests
+        echo "You approach one of the guests. They seem friendly and willing to chat."
+        echo "What do you want to ask them?"
+        echo "1) Where are you from?"
+        echo "2) What are you doing here?"
+        echo "3) Do you know any rumors?"
+        echo "4) Nothing"
+        read -p "> " choice
+        case $choice in
+          1)
+            # Ask where they are from
+            echo "They tell you that they are from a nearby town. They came here to trade some goods and enjoy the village life."
+            ;;
+          2)
+            # Ask what they are doing here
+            echo "They tell you that they are here for a quest. They heard that there is a hidden dungeon somewhere in the forest. They are looking for clues and adventurers to join them."
+            ;;
+          3)
+            # Ask if they know any rumors
+            echo "They tell you that they heard a rumor about a dragon that lives in the mountains. They say that the dragon guards a huge treasure, but no one has ever seen it or returned from the attempt."
+            ;;
+          4)
+            # Ask nothing
+            echo "You decide not to ask anything."
+            ;;
+          *)
+            # Invalid choice
+            echo "Invalid choice!"
+            ;;
+        esac
+        ;;
+      3)
+        # Leave the inn
+        echo "You leave the inn."
+        ;;
+      *)
+        # Invalid choice
+        echo "Invalid choice!"
+        ;;
+    esac
+    ;;
+  3)
+    # Leave the village
+    echo "You leave the village and continue your adventure."
+    ;;
+  *)
+    # Invalid choice
+    echo "Invalid choice!"
+    ;;
+esac
+
