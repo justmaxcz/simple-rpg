@@ -12,5 +12,6 @@ it have many features
 <li>dialogue</li>
 <li>enemyes</li>
 <li>currency</li> 
+<li>and more</li>
 
 <h4>will this project be updated maybe because i have a lot stuff to do so sorry but you can do what you want with it</h4>
