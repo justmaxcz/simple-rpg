@@ -1,6 +1,11 @@
 #!/bin/bash
+echo "simple rpg
+echo "made by stuffbymax"
+echo "==================="
 
-# A simple text-based RPG game written in bash
+# Print a message
+echo "Press enter to continue"
+read
 
 # Define some variables
 player_name="Hero"
